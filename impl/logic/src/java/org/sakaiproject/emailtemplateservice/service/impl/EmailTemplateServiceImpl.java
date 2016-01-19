@@ -375,6 +375,7 @@ public void sendRenderedMessages(String key, List<String> userReferences,
 	while (it.hasNext()) {
 	
 			
+				String newUserId = null;
 				Entry<EmailTemplateLocaleUsers, RenderedTemplate> entry = it.next();
 				RenderedTemplate rt = entry.getValue();
 				EmailTemplateLocaleUsers etlu = entry.getKey();
@@ -412,6 +413,11 @@ public void sendRenderedMessages(String key, List<String> userReferences,
 					User u = toAddress.get(0);
 					toName = u.getDisplayName();
 					toEmail = u.getEmail();
+					//check if 'replacementValues' has new email address, set 'toEmail' to that address
+					newUserId = replacementValues.get("newUserId");
+					if(newUserId != null){
+						toEmail = newUserId;
+					}
 				} 
 				
 				headers.add("To: \"" + toName + "\" <" + toEmail + ">" );
@@ -424,7 +430,13 @@ public void sendRenderedMessages(String key, List<String> userReferences,
 				
 				String body = message.toString();
 				log.debug("message body " + body);
-				emailService.sendToUsers(toAddress, headers, body);
+				if(newUserId != null){
+					//sending email to new email address for user who has updated the email
+					emailService.send(fromEmail, toEmail, rt.getRenderedSubject(), body, toEmail, fromEmail, headers );
+				}
+				else{
+					emailService.sendToUsers(toAddress, headers, body);
+				}
 				
 	}
 }
