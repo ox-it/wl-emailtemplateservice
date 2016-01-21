@@ -431,8 +431,11 @@ public void sendRenderedMessages(String key, List<String> userReferences,
 				String body = message.toString();
 				log.debug("message body " + body);
 				if(newUserId != null){
+					//EmailService 'send' method uses additionalHeaders differently from 'sendToUsers' so can't use 'headers' in this method.
+					List<String> additionalHeaders = new ArrayList<String>();
+					additionalHeaders.add("Content-Type: text/html; charset=UTF-8");
 					//sending email to new email address for user who has updated the email
-					emailService.send(fromEmail, toEmail, rt.getRenderedSubject(), body, toEmail, fromEmail, headers );
+					emailService.send(fromEmail, toEmail, rt.getRenderedSubject(), body, toEmail, fromEmail, additionalHeaders );
 				}
 				else{
 					emailService.sendToUsers(toAddress, headers, body);
